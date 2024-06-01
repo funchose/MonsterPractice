@@ -1,5 +1,6 @@
 package my.practice.monsters.model;
 
 public class Monster {
-  // Formatting sucks
- Boolean yes =  true;}
+    // Formatting not sucks
+    Boolean yes = true;
+}
