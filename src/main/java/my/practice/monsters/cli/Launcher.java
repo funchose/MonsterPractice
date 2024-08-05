@@ -1,19 +1,20 @@
 package my.practice.monsters.cli;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Launcher {
-  static String currentCommand; //TODO remove static?
+
 
   public static void main(String[] args) throws IOException, InterruptedException {
-
-    var game = new CliGame();
-    Thread gameThread = new Thread(game);
+    var currentCommand = new AtomicReference<String>();
+    var game = new CliGame(currentCommand);
+    var gameThread = new Thread(game);
     gameThread.start();
 
     while (true) {
       try {
-        currentCommand = game.bufferedReader.readLine();
+        currentCommand.set(game.bufferedReader.readLine());
       } catch (IOException exception) {
         exception.printStackTrace();
       }

@@ -9,13 +9,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CliGame implements Runnable {
   BufferedReader bufferedReader;
   Game game;
   MonsterFabric monsterFabric = new MonsterFabric();
+  AtomicReference<String> currentCommand;
 
-  public CliGame() {
+  public CliGame(AtomicReference<String> currentCommand) {
+    this.currentCommand = currentCommand;
     this.bufferedReader = new BufferedReader(new InputStreamReader(System.in));
     this.game = new Game();
   }
@@ -42,12 +45,12 @@ public class CliGame implements Runnable {
           j++;
         }
         System.out.println("Choose monster #1:");
-        Launcher.currentCommand = "1";
-        Monster monster1 = game.getPlayer().getMonsters().get(Integer.parseInt(Launcher.currentCommand) - 1);
+        this.currentCommand.set("1");
+        Monster monster1 = game.getPlayer().getMonsters().get(Integer.parseInt(this.currentCommand.get()) - 1);
         System.out.println("Choose monster #2:");
-        Launcher.currentCommand = "2";
-        Monster monster2 = game.getPlayer().getMonsters().get(Integer.parseInt(Launcher.currentCommand) - 1);
-        Launcher.currentCommand = null;
+        this.currentCommand.set("2");
+        Monster monster2 = game.getPlayer().getMonsters().get(Integer.parseInt(this.currentCommand.get()) - 1);
+        this.currentCommand.set(null);
         breedingChoice(monster1, monster2);
         break;
       case "4":
@@ -81,7 +84,7 @@ public class CliGame implements Runnable {
     game.startGame();
 
     String input = "Username"; // Потом поменять
-    //input = Launcher.currentCommand;
+    //input = this.currentCommand.get();
     game.setPlayer(new Player(input));
 
     //TODO Set for tests, don't forget to remove
@@ -104,14 +107,10 @@ public class CliGame implements Runnable {
       //updating the game
       //sleep with many options
       try {
-        input = Launcher.currentCommand;
+        input = this.currentCommand.get();
         if (input != null) {
-          handleInput(input.substring(0, 1));
-          if (input.length() > 1) {
-            Launcher.currentCommand = input.substring(1);
-          } else {
-            Launcher.currentCommand = null;
-          }
+          handleInput(input);
+          this.currentCommand.set(null);
           printNavigation();
         }
         game.update();
@@ -125,4 +124,3 @@ public class CliGame implements Runnable {
     }
   }
 }
-
