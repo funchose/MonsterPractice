@@ -2,6 +2,10 @@ package my.practice.monsters.model;
 
 public class Breeder {
 
+  public Monster getMonster() {
+    return monster;
+  }
+
   private Monster monster;
   private final int sleepTime = 1; //in seconds
 
@@ -20,6 +24,10 @@ public class Breeder {
   }
 
   private int timeToBreed;
+
+  public int getTimeToBreed() {
+    return timeToBreed;
+  }
 
   public void update() throws InterruptedException {
     if (this.monster != null) {

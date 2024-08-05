@@ -1,36 +1,21 @@
 package my.practice.monsters.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Store {
-  private final int foodPrice = 10;
-  private int splashEggPrice = 10;
-  private int bubbleEggPrice = 10;
-  private int sparkEggPrice = 10;
+  public List<Product> storeProducts;
 
-  public int getFoodPrice() {
-    return foodPrice;
+  public List<Product> getStoreProducts() {
+    return this.storeProducts;
   }
+  //TODO Поправить названия методов и полей после реализации парсинга JSON
 
-  public int getSplashEggPrice() {
-    return splashEggPrice;
+  public Store() {
+    this.storeProducts = new ArrayList<>();
+    storeProducts.add(0, Product.FoodBowl);
+    storeProducts.add(1, Product.SparkEgg);
+    storeProducts.add(2, Product.SplashEgg);
+    storeProducts.add(3, Product.BubbleEgg);
   }
-
-  public int getBubbleEggPrice() {
-    return bubbleEggPrice;
-  }
-
-  public int getSparkEggPrice() {
-    return sparkEggPrice;
-  }
-
-  public void setSplashEggPrice(int splashEggPrice) {
-    this.splashEggPrice = splashEggPrice;
-  } //?
-
-  public void setBubbleEggPrice(int bubbleEggPrice) {
-    this.bubbleEggPrice = bubbleEggPrice;
-  } //?
-
-  public void setSparkEggPrice(int sparkEggPrice) {
-    this.sparkEggPrice = sparkEggPrice;
-  } //?
 }

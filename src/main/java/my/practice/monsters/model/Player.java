@@ -4,7 +4,22 @@ import java.util.ArrayList;
 
 public class Player {
   private String name;
-  private int gold = 10;
+
+  private int gold = 25;
+
+  public void addFoodBowls(int foodBowls) {
+    this.foodBowls += foodBowls;
+  }
+
+  public int getFoodBowls() {
+    return foodBowls;
+  }
+
+  private int foodBowls = 0;
+
+  public int getGold() {
+    return gold;
+  }
 
   public ArrayList<Monster> getMonsters() {
     return monsters;

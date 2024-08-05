@@ -6,32 +6,43 @@ import java.util.Random;
 public class Game {
   private Player player = null;
 
+  Store store;
+
   Breeder breeder;
 
-  public void setBreeder(Breeder breeder) {
-    this.breeder = breeder;
+  public void setPlayer(Player player) {
+    this.player = player;
   }
 
   public Player getPlayer() {
     return player;
   }
 
+  public Store getStore() {
+    return store;
+  }
+
+  public void setStore(Store store) {
+    this.store = store;
+  }
+
+  public void setBreeder(Breeder breeder) {
+    this.breeder = breeder;
+  }
+
   public Breeder getBreeder() {
     return breeder;
   }
 
-  public void setPlayer(Player player) {
-    this.player = player;
-  }
-
   public void startGame() {
     MonsterBoss monsterBoss = new MonsterBoss();
+    setStore(new Store());
     setBreeder(new Breeder((Monster monster) -> this.getPlayer().addMonster(monster)));
   }
 
   public Monster breeding(Monster monster1, Monster monster2, MonsterFabric monsterFabric) {
     //TODO sleep for each breeding
-    HashSet<Monster.Element> elementSet = new HashSet<Monster.Element>();
+    var elementSet = new HashSet<Monster.Element>();
     Random random = new Random();
     int randomNum = random.nextInt(1, 101);
     if (monster1.elementSet.size() == 1 && monster2.elementSet.size() == 1) {

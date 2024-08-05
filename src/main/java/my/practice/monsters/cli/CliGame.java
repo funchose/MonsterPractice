@@ -1,9 +1,6 @@
 package my.practice.monsters.cli;
 
-import my.practice.monsters.model.Game;
-import my.practice.monsters.model.Monster;
-import my.practice.monsters.model.MonsterFabric;
-import my.practice.monsters.model.Player;
+import my.practice.monsters.model.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,49 +13,100 @@ public class CliGame implements Runnable {
   Game game;
   MonsterFabric monsterFabric = new MonsterFabric();
   AtomicReference<String> currentCommand;
+  CliGameState currentState;
+  Monster monster1;
+  Monster monster2;
 
   public CliGame(AtomicReference<String> currentCommand) {
     this.currentCommand = currentCommand;
     this.bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+    this.currentState = CliGameState.Start;
     this.game = new Game();
   }
 
   private void handleInput(String s) throws IOException {
-    switch (s) {
-      case "1":
+    switch (currentState) {
+      case Start:
         //TODO implement the other eggs buying
-        System.out.println("Hello!");
-        break;
-      case "2":
-        System.out.println("Here are your monsters:");
-        int i = 1;
-        for (Monster m : game.getPlayer().getMonsters()) {
-          System.out.println(i + ". " + m.getType());
-          i++;
+        switch (s) {
+          case "1":
+            System.out.println("What would you like to buy?");
+            printStoreProducts();
+            switchState(CliGameState.BuyingEggsOrFood);
+            break;
+          case "2":
+            System.out.println("Here are your monsters:");
+            int i = 1;
+            for (Monster m : game.getPlayer().getMonsters()) {
+              System.out.println(i + ". " + m.getType());
+              i++;
+            }
+            break;
+          case "3":
+            if (game.getBreeder().getMonster() != null) {
+              System.out.println("You are already breeding a monster!");
+              break;
+            }
+            System.out.println("Choose monsters for breeding");
+            int j = 1;
+            for (Monster m : game.getPlayer().getMonsters()) {
+              System.out.println(j + ". " + m.getType());
+              j++;
+            }
+            System.out.println("Choose monster #1:");
+            switchState(CliGameState.ChoosingMonster1);
+            break;
+          case "4":
+            break;
+          case "0":
+            System.exit(0);
         }
         break;
-      case "3":
-        System.out.println("Choose monsters for breeding");
-        int j = 1;
-        for (Monster m : game.getPlayer().getMonsters()) {
-          System.out.println(j + ". " + m.getType());
-          j++;
+      case ChoosingMonster1:
+        if (s != null) {
+          this.monster1 = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          System.out.println("Choose monster #2:");
+          switchState(CliGameState.ChoosingMonster2);
         }
-        System.out.println("Choose monster #1:");
-        this.currentCommand.set("1");
-        Monster monster1 = game.getPlayer().getMonsters().get(Integer.parseInt(this.currentCommand.get()) - 1);
-        System.out.println("Choose monster #2:");
-        this.currentCommand.set("2");
-        Monster monster2 = game.getPlayer().getMonsters().get(Integer.parseInt(this.currentCommand.get()) - 1);
-        this.currentCommand.set(null);
-        breedingChoice(monster1, monster2);
         break;
-      case "4":
-        //TODO implement the monster feeding procedure
+      case ChoosingMonster2:
+        if (s != null) {
+          this.monster2 = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          breedingChoice(monster1, monster2);
+          System.out.println("You are breeding " + monster1.getType() + " and " + monster2.getType()
+              + ". Breeding time: " + game.getBreeder().getTimeToBreed());
+          switchState(CliGameState.Start);
+          printNavigation();
+        }
         break;
-      case "0":
-        System.exit(0);
+      case ChoosingMonsterForFeeding:
+        break;
+      case BuyingEggsOrFood:
+        if (s.equals("1")) {
+          System.out.println("How many Food Bowls would you like to buy?");
+          switchState(CliGameState.ChoosingFoodAmount);
+        } else {
+          switchState(CliGameState.ChoosingAnEgg);
+        }
+        break;
+      case ChoosingFoodAmount:
+        if (Integer.parseInt(s) * Product.FoodBowl.price > game.getPlayer().getGold()) {
+          System.out.println("You don't have enough gold! Choose another amount:");
+        } else {
+          game.getPlayer().addFoodBowls(Integer.parseInt(s));
+          System.out.println("You've bought " + Integer.parseInt(s) + " Food Bowl(s). Now you have " +
+              game.getPlayer().getFoodBowls() + " Food Bowl(s).");
+          switchState(CliGameState.Start);
+          printNavigation();
+        }
+        break;
+      case ChoosingAnEgg:
+        break;
     }
+  }
+
+  public void switchState(CliGameState newState) {
+    this.currentState = newState;
   }
 
   public void breedingChoice(Monster monster1, Monster monster2) throws IOException {
@@ -72,11 +120,17 @@ public class CliGame implements Runnable {
   public void printNavigation() {
     System.out.println("""
         What would you like to do?
-        1. Go to the Store
+        1. Go to the Monster Store
         2. Get the list of my monsters
         3. Breed a monster
         4. Feed a monster
         0. Exit game""");
+  }
+
+  public void printStoreProducts() {
+    for (var i = 1; i < game.getStore().storeProducts.size() + 1; i++) {
+      System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1).name);
+    }
   }
 
   @Override
@@ -111,7 +165,6 @@ public class CliGame implements Runnable {
         if (input != null) {
           handleInput(input);
           this.currentCommand.set(null);
-          printNavigation();
         }
         game.update();
         Thread.sleep(1000);
