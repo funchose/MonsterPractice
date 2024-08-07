@@ -16,6 +16,7 @@ public class CliGame implements Runnable {
   CliGameState currentState;
   Monster monster1;
   Monster monster2;
+  Monster monsterForFeeding;
 
   public CliGame(AtomicReference<String> currentCommand) {
     this.currentCommand = currentCommand;
@@ -30,17 +31,13 @@ public class CliGame implements Runnable {
         //TODO implement the other eggs buying
         switch (s) {
           case "1":
-            System.out.println("What would you like to buy?");
+            switchState(CliGameState.Store);
             printStoreProducts();
-            switchState(CliGameState.BuyingEggsOrFood);
             break;
           case "2":
             System.out.println("Here are your monsters:");
-            int i = 1;
-            for (Monster m : game.getPlayer().getMonsters()) {
-              System.out.println(i + ". " + m.getType());
-              i++;
-            }
+            printMonsters();
+            printNavigation();
             break;
           case "3":
             if (game.getBreeder().getMonster() != null) {
@@ -48,15 +45,14 @@ public class CliGame implements Runnable {
               break;
             }
             System.out.println("Choose monsters for breeding");
-            int j = 1;
-            for (Monster m : game.getPlayer().getMonsters()) {
-              System.out.println(j + ". " + m.getType());
-              j++;
-            }
+            printMonsters();
             System.out.println("Choose monster #1:");
             switchState(CliGameState.ChoosingMonster1);
             break;
           case "4":
+            System.out.println("Choose a monster for feeding:");
+            printMonsters();
+            switchState(CliGameState.ChoosingMonsterForFeeding);
             break;
           case "0":
             System.exit(0);
@@ -80,28 +76,110 @@ public class CliGame implements Runnable {
         }
         break;
       case ChoosingMonsterForFeeding:
+        if (s != null) {
+          this.monsterForFeeding = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          System.out.println("How many bowls would you like to feed it? (Press 0 to go the Main Menu)");
+          switchState(CliGameState.ChoosingFoodForFeeding);
+        }
         break;
-      case BuyingEggsOrFood:
-        if (s.equals("1")) {
-          System.out.println("How many Food Bowls would you like to buy?");
-          switchState(CliGameState.ChoosingFoodAmount);
+      case ChoosingFoodForFeeding:
+          if( s.equals("0")) {
+            switchState(CliGameState.Start);
+          }
+          else {
+            if (Integer.parseInt(s) > game.getPlayer().getFoodBowls()) {
+              System.out.println("You don't have enough gold! Choose another amount or " +
+                  "press 0 to go back to the Monster Store:");
+            }
+            else {
+              game.getPlayer().removeFoodBowls(Integer.parseInt(s));
+              //TODO add setters for monsterForFeeding level and gold.
+            }
+          }
+        break;
+      case Store:
+        if (s.equals("0")) {
+          switchState(CliGameState.Start);
+          printNavigation();
         } else {
-          switchState(CliGameState.ChoosingAnEgg);
+          switch (game.getStore().storeProducts.get(Integer.parseInt(s) - 1)) {
+            case FoodBowl:
+              System.out.println("How many Food Bowls would you like to buy?");
+              switchState(CliGameState.ChoosingFoodAmount);
+              break;
+            case BubbleEgg:
+              if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
+                System.out.println("You don't have enough gold!");
+              } else {
+                System.out.println("You've bought " + Product.BubbleEgg.name + "!");
+                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+                  add(Monster.Element.AIR);
+                }})); //можно обойтись без создания анонимного класса тут, нужно?
+                game.getPlayer().setGold(game.getPlayer().getGold() - Product.BubbleEgg.price); //можно написать другой метод в классе Player, но не будет так же читаемо?
+                System.out.println("Your gold: " + game.getPlayer().getGold());
+              }
+              switchState(CliGameState.Store);
+              printStoreProducts();
+              break;
+            case SparkEgg:
+              if (Product.SparkEgg.price > game.getPlayer().getGold()) {
+                System.out.println("You don't have enough gold!");
+              } else {
+                System.out.println("You've bought " + Product.SparkEgg.name + "!");
+                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+                  add(Monster.Element.FIRE);
+                }}));
+                game.getPlayer().setGold(game.getPlayer().getGold() - Product.SparkEgg.price);
+                System.out.println("Your gold: " + game.getPlayer().getGold());
+              }
+              switchState(CliGameState.Store);
+              printStoreProducts();
+              break;
+            case SplashEgg:
+              if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
+                System.out.println("You don't have enough gold!");
+              } else {
+                System.out.println("You've bought " + Product.SplashEgg.name + "!");
+                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+                  add(Monster.Element.WATER);
+                }}));
+                game.getPlayer().setGold(game.getPlayer().getGold() - Product.SplashEgg.price);
+                System.out.println("Your gold: " + game.getPlayer().getGold());
+              }
+              switchState(CliGameState.Store);
+              printStoreProducts();
+              break;
+          }
         }
         break;
       case ChoosingFoodAmount:
-        if (Integer.parseInt(s) * Product.FoodBowl.price > game.getPlayer().getGold()) {
-          System.out.println("You don't have enough gold! Choose another amount:");
+        if (s.equals("0")) {
+          switchState(CliGameState.Store);
+          printStoreProducts(); // почему не выводится, если положить этот метод в другое состояние первой строкой?
+        } else if (Integer.parseInt(s) * Product.FoodBowl.price > game.getPlayer().getGold()) {
+          System.out.println("You don't have enough gold! Choose another amount or " +
+              "press 0 to go back to the Monster Store:");
         } else {
           game.getPlayer().addFoodBowls(Integer.parseInt(s));
           System.out.println("You've bought " + Integer.parseInt(s) + " Food Bowl(s). Now you have " +
               game.getPlayer().getFoodBowls() + " Food Bowl(s).");
+          System.out.println("Your gold: " + game.getPlayer().getGold());
           switchState(CliGameState.Start);
           printNavigation();
         }
         break;
       case ChoosingAnEgg:
+        printNavigation();
+        switchState(CliGameState.Start);
         break;
+    }
+  }
+
+  private void printMonsters() {
+    int j = 1;
+    for (Monster m : game.getPlayer().getMonsters()) {
+      System.out.println(j + ". " + m.getType());
+      j++;
     }
   }
 
@@ -128,15 +206,17 @@ public class CliGame implements Runnable {
   }
 
   public void printStoreProducts() {
+    System.out.println("Choose one of the following products or press 0 to exit the Monster Store:");
     for (var i = 1; i < game.getStore().storeProducts.size() + 1; i++) {
       System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1).name);
     }
+    System.out.println("0. Exit the Monster Store");
   }
 
   @Override
   public void run() {
     game.startGame();
-
+    //System.out.println("Please, enter your name:");
     String input = "Username"; // Потом поменять
     //input = this.currentCommand.get();
     game.setPlayer(new Player(input));
@@ -169,9 +249,7 @@ public class CliGame implements Runnable {
         game.update();
         Thread.sleep(1000);
 
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      } catch (InterruptedException e) {
+      } catch (IOException | InterruptedException e) {
         throw new RuntimeException(e);
       }
     }

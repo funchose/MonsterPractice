@@ -5,7 +5,12 @@ import java.util.ArrayList;
 public class Player {
   private String name;
 
-  private int gold = 25;
+  public Player setGold(int gold) {
+    this.gold = gold;
+    return this;
+  }
+
+  private int gold = 10;
 
   public void addFoodBowls(int foodBowls) {
     this.foodBowls += foodBowls;
@@ -45,5 +50,9 @@ public class Player {
 
   public void addMonster(Monster monster) {
     this.monsters.add(monster);
+  }
+
+  public void removeFoodBowls(int foodBowls) {
+    this.foodBowls -= foodBowls;
   }
 }

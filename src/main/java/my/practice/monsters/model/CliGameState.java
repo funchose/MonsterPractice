@@ -5,7 +5,8 @@ public enum CliGameState {
   ChoosingMonster1 {},
   ChoosingMonster2 {},
   ChoosingMonsterForFeeding {},
-  BuyingEggsOrFood {},
+  Store {},
   ChoosingFoodAmount {},
+  ChoosingFoodForFeeding{},
   ChoosingAnEgg {}
 }
