@@ -74,4 +74,10 @@ public class Game {
   public void update() throws InterruptedException {
     breeder.update();
   }
+
+  public void buyFood(int foodAmount) {
+    player.addFoodBowls(foodAmount);
+    final var newGold = player.getGold() - Product.FoodBowl.price;
+    player.setGold(newGold);
+  }
 }

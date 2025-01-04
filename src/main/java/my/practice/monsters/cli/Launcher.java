@@ -1,24 +1,26 @@
 package my.practice.monsters.cli;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
+import java.io.InputStreamReader;
 
 public class Launcher {
 
-
-  public static void main(String[] args) throws IOException, InterruptedException {
-    var currentCommand = new AtomicReference<String>();
-    var game = new CliGame(currentCommand);
+  public static void main(String[] args) {
+    var game = new CliGame();
     var gameThread = new Thread(game);
     gameThread.start();
-
-    while (true) {
+    var bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+    while (!gameThread.isInterrupted()) {
       try {
-        currentCommand.set(game.bufferedReader.readLine());
+        game.setCurrentCommand(bufferedReader.readLine());
+        /*
+        performs this step one extra time after gameThread termination. Accepts any command.
+         */
       } catch (IOException exception) {
         exception.printStackTrace();
       }
     }
-    //Thread.currentThread().join();  //for now - unreachable, but when the gameLoop will be interrupted?
+    System.exit(0);
   }
 }
