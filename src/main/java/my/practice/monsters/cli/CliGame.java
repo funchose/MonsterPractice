@@ -88,34 +88,7 @@ public class CliGame implements Runnable {
   private void handleInput(String s) throws IOException, InterruptedException {
     switch (currentState) {
       case Start:
-        switch (s) {
-          case "1":
-            switchState(CliGameState.Store);
-            printStoreProducts();
-            break;
-          case "2":
-            System.out.println("Here are your monsters:");
-            printMonsters();
-            printNavigation();
-            break;
-          case "3":
-            if (game.getBreeder().getMonster() != null) {
-              System.out.println("You are already breeding a monster!");
-              break;
-            }
-            System.out.println("Choose monsters for breeding");
-            printMonsters();
-            System.out.println("Choose monster #1:");
-            switchState(CliGameState.ChoosingMonster1);
-            break;
-          case "4":
-            System.out.println("Choose a monster for feeding:");
-            printMonsters();
-            switchState(CliGameState.ChoosingMonsterForFeeding);
-            break;
-          case "0":
-            Thread.currentThread().interrupt();
-        }
+        switchBetweenStartCases(s);
         break;
       case Store:
         //TODO implement the other eggs buying
@@ -123,54 +96,8 @@ public class CliGame implements Runnable {
           switchState(CliGameState.Start);
           printNavigation();
         } else {
-          switch (game.getStore().storeProducts.get(Integer.parseInt(s) - 1)) {
-            case FoodBowl:
-              System.out.println("How many Food Bowls would you like to buy?");
-              switchState(CliGameState.ChoosingFoodAmountForBuying);
-              break;
-            case BubbleEgg:
-              if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
-                System.out.println("You don't have enough gold!");
-              } else {
-                System.out.println("You've bought " + Product.BubbleEgg.name + "!");
-                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-                  add(Monster.Element.AIR);
-                }}));
-                game.getPlayer().setGold(game.getPlayer().getGold() - Product.BubbleEgg.price);
-                System.out.println("Your gold: " + game.getPlayer().getGold());
-              }
-              switchState(CliGameState.Store);
-              printStoreProducts();
-              break;
-            case SparkEgg:
-              if (Product.SparkEgg.price > game.getPlayer().getGold()) {
-                System.out.println("You don't have enough gold!");
-              } else {
-                System.out.println("You've bought " + Product.SparkEgg.name + "!");
-                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-                  add(Monster.Element.FIRE);
-                }}));
-                game.getPlayer().setGold(game.getPlayer().getGold() - Product.SparkEgg.price);
-                System.out.println("Your gold: " + game.getPlayer().getGold());
-              }
-              switchState(CliGameState.Store);
-              printStoreProducts();
-              break;
-            case SplashEgg:
-              if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
-                System.out.println("You don't have enough gold!");
-              } else {
-                System.out.println("You've bought " + Product.SplashEgg.name + "!");
-                game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-                  add(Monster.Element.WATER);
-                }}));
-                game.getPlayer().setGold(game.getPlayer().getGold() - Product.SplashEgg.price);
-                System.out.println("Your gold: " + game.getPlayer().getGold());
-              }
-              switchState(CliGameState.Store);
-              printStoreProducts();
-              break;
-          }
+          var product = getProduct(s);
+          switchBetweenProducts(product);
         }
         break;
       case ChoosingFoodAmountForBuying:
@@ -178,24 +105,14 @@ public class CliGame implements Runnable {
           switchState(CliGameState.Start);
           printNavigation();
         } else {
-          final var foodAmount = Integer.parseInt(s);
-          final var price = foodAmount * Product.FoodBowl.price;
-          if (game.getPlayer().getGold() >= price) {
-            game.buyFood(foodAmount);
-            System.out.println("You've bought " + foodAmount + " Food Bowl(s). Now you have " +
-                game.getPlayer().getFoodBowls() + " Food Bowl(s).");
-            System.out.println("Your gold: " + game.getPlayer().getGold());
-          } else {
-            System.out.println("You don't have enough gold! Choose another amount or " +
-                "press 0 to go back to the Monster Store:");
-          }
+          buyFood(s);
         }
         switchState(CliGameState.Store);
         printStoreProducts();
         break;
       case ChoosingMonster1:
         try {
-          this.monster1 = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          this.monster1 = getMonster(s);
           System.out.println("Choose monster #2:");
           switchState(CliGameState.ChoosingMonster2);
         } catch (IndexOutOfBoundsException e) {
@@ -205,7 +122,7 @@ public class CliGame implements Runnable {
         break;
       case ChoosingMonster2:
         try {
-          this.monster2 = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          this.monster2 = getMonster(s);
           breedingChoice(monster1, monster2);
           System.out.println("You are breeding " + monster1.getType() + " and " + monster2.getType()
               + ". Breeding time: " + game.getBreeder().getTimeToBreed());
@@ -218,7 +135,7 @@ public class CliGame implements Runnable {
         break;
       case ChoosingMonsterForFeeding:
         try {
-          this.monsterForFeeding = game.getPlayer().getMonsters().get(Integer.parseInt(s) - 1);
+          this.monsterForFeeding = getMonster(s);
           System.out.println("How many bowls would you like to feed it? " +
               "(Press 0 to go the Main Menu)");
           switchState(CliGameState.ChoosingFoodForFeeding);
@@ -232,20 +149,130 @@ public class CliGame implements Runnable {
           printNavigation();
           switchState(CliGameState.Start);
         } else {
-          if (Integer.parseInt(s) > game.getPlayer().getFoodBowls()) {
+          var foodAmountToFeed = Integer.parseInt(s);
+          if (!isAbleToFeed(foodAmountToFeed)) {
             System.out.println("You don't have enough food bowls! Choose another amount or " +
                 "press 0 to go back to the Main Menu:");
           } else {
-            game.getPlayer().removeFoodBowls(Integer.parseInt(s));
+            game.getPlayer().removeFoodBowls(foodAmountToFeed);
             //TODO add setters for monsterForFeeding level and gold.
           }
         }
         break;
-      case ChoosingAnEgg: //wth
+      case ChoosingAnEgg: //TODO
         printNavigation();
         switchState(CliGameState.Start);
         break;
     }
+  }
+
+  private void switchBetweenStartCases(String s) {
+    switch (s) {
+      case "1":
+        switchState(CliGameState.Store);
+        printStoreProducts();
+        break;
+      case "2":
+        System.out.println("Here are your monsters:");
+        printMonsters();
+        printNavigation();
+        break;
+      case "3":
+        if (game.getBreeder().getMonster() != null) {
+          System.out.println("You are already breeding a monster!");
+          break;
+        }
+        System.out.println("Choose monsters for breeding");
+        printMonsters();
+        System.out.println("Choose monster #1:");
+        switchState(CliGameState.ChoosingMonster1);
+        break;
+      case "4":
+        System.out.println("Choose a monster for feeding:");
+        printMonsters();
+        switchState(CliGameState.ChoosingMonsterForFeeding);
+        break;
+      case "0":
+        Thread.currentThread().interrupt();
+    }
+  }
+
+  private Product getProduct(String s) {
+    int productNum = Integer.parseInt(s) - 1;
+    var store = game.getStore();
+    return store.storeProducts.get(productNum);
+  }
+
+  private void switchBetweenProducts(Product product) {
+    switch (product) {
+      case FoodBowl:
+        System.out.println("How many Food Bowls would you like to buy?");
+        switchState(CliGameState.ChoosingFoodAmountForBuying);
+        break;
+      //TODO refactor
+      case BubbleEgg:
+        if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
+          System.out.println("You don't have enough gold!");
+        } else {
+          System.out.println("You've bought " + Product.BubbleEgg.name + "!");
+          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+            add(Monster.Element.AIR);
+          }}));
+          game.getPlayer().setGold(game.getPlayer().getGold() - Product.BubbleEgg.price);
+          System.out.println("Your gold: " + game.getPlayer().getGold());
+        }
+        switchState(CliGameState.Store);
+        printStoreProducts();
+        break;
+      case SparkEgg:
+        if (Product.SparkEgg.price > game.getPlayer().getGold()) {
+          System.out.println("You don't have enough gold!");
+        } else {
+          System.out.println("You've bought " + Product.SparkEgg.name + "!");
+          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+            add(Monster.Element.FIRE);
+          }}));
+          game.getPlayer().setGold(game.getPlayer().getGold() - Product.SparkEgg.price);
+          System.out.println("Your gold: " + game.getPlayer().getGold());
+        }
+        switchState(CliGameState.Store);
+        printStoreProducts();
+        break;
+      case SplashEgg:
+        if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
+          System.out.println("You don't have enough gold!");
+        } else {
+          System.out.println("You've bought " + Product.SplashEgg.name + "!");
+          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
+            add(Monster.Element.WATER);
+          }}));
+          game.getPlayer().setGold(game.getPlayer().getGold() - Product.SplashEgg.price);
+          System.out.println("Your gold: " + game.getPlayer().getGold());
+        }
+        switchState(CliGameState.Store);
+        printStoreProducts();
+        break;
+    }
+  }
+
+  private void buyFood(String s) {
+    final var foodAmount = Integer.parseInt(s);
+    final var price = foodAmount * Product.FoodBowl.price;
+    if (isAbleToBuyFood(price)) {
+      game.buyFood(foodAmount);
+      System.out.println("You've bought " + foodAmount + " Food Bowl(s). Now you have " +
+          game.getPlayer().getFoodBowls() + " Food Bowl(s).");
+      System.out.println("Your gold: " + game.getPlayer().getGold());
+    } else {
+      System.out.println("You don't have enough gold! Choose another amount or " +
+          "press 0 to go back to the Monster Store:");
+    }
+  }
+
+  private Monster getMonster(String s) {
+    var monsterNum = Integer.parseInt(s) - 1;
+    var player = game.getPlayer();
+    return player.getMonsters().get(monsterNum);
   }
 
   private void printMonsters() {
@@ -275,5 +302,14 @@ public class CliGame implements Runnable {
       System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1).name);
     }
     System.out.println("0. Exit the Monster Store");
+  }
+
+  private boolean isAbleToBuyFood(int price) {
+    return game.getPlayer().getGold() >= price;
+  }
+
+  private boolean isAbleToFeed(int foodAmountToFeed) {
+    var playerFoodBowls = game.getPlayer().getFoodBowls();
+    return playerFoodBowls >= foodAmountToFeed;
   }
 }
