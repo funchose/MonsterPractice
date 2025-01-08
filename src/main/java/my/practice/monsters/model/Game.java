@@ -1,5 +1,7 @@
 package my.practice.monsters.model;
 
+import my.practice.monsters.model.store.Store;
+
 import java.util.HashSet;
 import java.util.Random;
 
@@ -77,7 +79,7 @@ public class Game {
 
   public void buyFood(int foodAmount) {
     player.addFoodBowls(foodAmount);
-    final var newGold = player.getGold() - Product.FoodBowl.price;
+    final var newGold = player.getGold() - store.getFoodBowl().getPrice();
     player.setGold(newGold);
   }
 }

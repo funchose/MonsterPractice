@@ -20,11 +20,6 @@ public class CliGame implements Runnable {
     this.currentState = CliGameState.Start;
     this.game = new Game();
   }
-
-  public AtomicReference<String> getCurrentCommand() {
-    return currentCommand;
-  }
-
   public void setCurrentCommand(String currentCommand) {
     this.currentCommand.set(currentCommand);
   }
@@ -102,13 +97,19 @@ public class CliGame implements Runnable {
         break;
       case ChoosingFoodAmountForBuying:
         if (s.equals("0")) {
-          switchState(CliGameState.Start);
-          printNavigation();
+          switchState(CliGameState.Store);
+          printStoreProducts();
         } else {
           buyFood(s);
         }
-        switchState(CliGameState.Store);
-        printStoreProducts();
+        break;
+      case StoreEggs:
+        if (s.equals("0")) {
+          switchState(CliGameState.Store);
+          printStoreProducts();
+        } else {
+          buyEgg(s);
+        }
         break;
       case ChoosingMonster1:
         try {
@@ -197,75 +198,40 @@ public class CliGame implements Runnable {
     }
   }
 
-  private Product getProduct(String s) {
+  private String getProduct(String s) {
     int productNum = Integer.parseInt(s) - 1;
     var store = game.getStore();
-    return store.storeProducts.get(productNum);
+    return store.getStoreProducts().get(productNum);
   }
 
-  private void switchBetweenProducts(Product product) {
+  private void switchBetweenProducts(String product) {
     switch (product) {
-      case FoodBowl:
+      case "Food":
         System.out.println("How many Food Bowls would you like to buy?");
         switchState(CliGameState.ChoosingFoodAmountForBuying);
         break;
-      //TODO refactor
-      case BubbleEgg:
-        if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
-          System.out.println("You don't have enough gold!");
-        } else {
-          System.out.println("You've bought " + Product.BubbleEgg.name + "!");
-          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-            add(Monster.Element.AIR);
-          }}));
-          game.getPlayer().setGold(game.getPlayer().getGold() - Product.BubbleEgg.price);
-          System.out.println("Your gold: " + game.getPlayer().getGold());
-        }
-        switchState(CliGameState.Store);
-        printStoreProducts();
-        break;
-      case SparkEgg:
-        if (Product.SparkEgg.price > game.getPlayer().getGold()) {
-          System.out.println("You don't have enough gold!");
-        } else {
-          System.out.println("You've bought " + Product.SparkEgg.name + "!");
-          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-            add(Monster.Element.FIRE);
-          }}));
-          game.getPlayer().setGold(game.getPlayer().getGold() - Product.SparkEgg.price);
-          System.out.println("Your gold: " + game.getPlayer().getGold());
-        }
-        switchState(CliGameState.Store);
-        printStoreProducts();
-        break;
-      case SplashEgg:
-        if (Product.BubbleEgg.price > game.getPlayer().getGold()) {
-          System.out.println("You don't have enough gold!");
-        } else {
-          System.out.println("You've bought " + Product.SplashEgg.name + "!");
-          game.getPlayer().addMonster(monsterFabric.createMonster(new HashSet<>() {{
-            add(Monster.Element.WATER);
-          }}));
-          game.getPlayer().setGold(game.getPlayer().getGold() - Product.SplashEgg.price);
-          System.out.println("Your gold: " + game.getPlayer().getGold());
-        }
-        switchState(CliGameState.Store);
-        printStoreProducts();
-        break;
+      case "Monster Eggs":
+        System.out.println("Choose one of the monsters eggs:");
+        printEggs();
+        switchState(CliGameState.StoreEggs);
     }
   }
 
   private void buyFood(String s) {
     final var foodAmount = Integer.parseInt(s);
-    final var price = foodAmount * Product.FoodBowl.price;
-    if (isAbleToBuyFood(price)) {
+    final var price = foodAmount * game.getStore().getFoodBowl().getPrice();
+    if (isAbleToBuyProduct(price)) {
       game.buyFood(foodAmount);
       System.out.println("You've bought " + foodAmount + " Food Bowl(s). Now you have " +
           game.getPlayer().getFoodBowls() + " Food Bowl(s).");
       System.out.println("Your gold: " + game.getPlayer().getGold());
+
+      switchState(CliGameState.Store);
+      printStoreProducts();
     } else {
       System.out.println("You don't have enough gold! Choose another amount or " +
           "press 0 to go back to the Monster Store:");
+
     }
   }
 
@@ -298,14 +264,38 @@ public class CliGame implements Runnable {
   public void printStoreProducts() {
     System.out.println("Choose one of the following products " +
         "or press 0 to exit the Monster Store:");
-    for (var i = 1; i < game.getStore().storeProducts.size() + 1; i++) {
-      System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1).name);
+    for (var i = 1; i < game.getStore().getStoreProducts().size() + 1; i++) {
+      System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1));
     }
     System.out.println("0. Exit the Monster Store");
   }
 
-  private boolean isAbleToBuyFood(int price) {
+  public void printEggs() {
+    for (var i = 1; i < game.getStore().getEggsList().size() + 1; i++) {
+      System.out.println(i + ". " + game.getStore().getEggsList().get(i - 1).getName());
+    }
+  }
+
+  private boolean isAbleToBuyProduct(int price) {
     return game.getPlayer().getGold() >= price;
+  }
+
+  private void buyEgg(String s) {
+    final var egg = game.getStore().getEggsList().get(Integer.parseInt(s) - 1);
+    final var price = egg.getPrice();
+    if (isAbleToBuyProduct(price)) {
+      System.out.println("You've bought " + egg.getName() + "!");
+      var set = new HashSet<Monster.Element>();
+      set.addAll(egg.getElements());
+      var monster = monsterFabric.createMonster(set);
+      game.getPlayer().addMonster(monster);
+      game.getPlayer().setGold(game.getPlayer().getGold() - egg.getPrice());
+      System.out.println("Your gold: " + game.getPlayer().getGold());
+      switchState(CliGameState.Store);
+      printStoreProducts();
+    } else {
+      System.out.println("You don't have enough gold!");
+    }
   }
 
   private boolean isAbleToFeed(int foodAmountToFeed) {
