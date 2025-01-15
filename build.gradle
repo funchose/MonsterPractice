@@ -35,11 +35,11 @@ javafx {
 dependencies {
     implementation 'com.github.almasb:fxgl:17.3'
     implementation 'com.google.code.gson:gson:2.11.0'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.11.4'
-
-    testImplementation 'junit:junit:4.13.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:${junitVersion}'
+    testImplementation(platform('org.junit:junit-bom:5.11.4'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
+
 
 test {
     useJUnitPlatform()
@@ -56,3 +56,5 @@ jlink {
 jlinkZip {
     group = 'distribution'
 }
+
+

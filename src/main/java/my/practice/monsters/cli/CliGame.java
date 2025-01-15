@@ -17,9 +17,10 @@ public class CliGame implements Runnable {
 
   public CliGame() {
     this.currentCommand = new AtomicReference<>();
-    this.currentState = CliGameState.Start;
+    this.currentState = CliGameState.Greeting;
     this.game = new Game();
   }
+
   public void setCurrentCommand(String currentCommand) {
     this.currentCommand.set(currentCommand);
   }
@@ -27,27 +28,8 @@ public class CliGame implements Runnable {
   @Override
   public void run() {
     game.startGame();
-    //System.out.println("Please, enter your name:");
-    String input = "Username"; // Потом поменять
-    //input = this.currentCommand.get();
-    game.setPlayer(new Player(input));
-
-    //TODO Set for tests, don't forget to remove
-    HashSet<Monster.Element> elements1 = new HashSet<>();
-    elements1.add(Monster.Element.WATER);
-    game.getPlayer().addMonster(monsterFabric.createMonster(elements1));
-    HashSet<Monster.Element> elements2 = new HashSet<>();
-    elements2.add(Monster.Element.FIRE);
-    game.getPlayer().addMonster(monsterFabric.createMonster(elements2));
-
-    System.out.println("""
-        Welcome to MonsterPractice - the game, where you'll breed
-        and raise monsters to wake the MonsterBoss up!
-        """);
-    System.out.printf("Have a nice game, %s! Go to the Store and buy your first Monster Egg!%n",
-        game.getPlayer().getName());
-    //TODO implement buying of the first egg
-    printNavigation();
+    System.out.println("Please, enter your name:");
+    String input;
     while (!Thread.currentThread().isInterrupted()) {
       //handling user's input, not waiting for it
       //updating the game
@@ -82,11 +64,32 @@ public class CliGame implements Runnable {
 
   private void handleInput(String s) throws IOException, InterruptedException {
     switch (currentState) {
+      case Greeting:
+        game.setPlayer(new Player(s));
+        System.out.println("""
+            Welcome to MonsterPractice - the game, where you'll breed
+            and raise monsters to wake the MonsterBoss up!
+            """);
+        if (game.getPlayer() != null) {
+          System.out.printf("Have a nice game, %s! Go to the Store and buy your first Monster Egg!%n",
+              game.getPlayer().getName());
+
+          //TODO Set for tests, don't forget to remove
+          HashSet<Monster.Element> elements1 = new HashSet<>();
+          elements1.add(Monster.Element.WATER);
+          game.getPlayer().addMonster(monsterFabric.createMonster(elements1));
+          HashSet<Monster.Element> elements2 = new HashSet<>();
+          elements2.add(Monster.Element.FIRE);
+          game.getPlayer().addMonster(monsterFabric.createMonster(elements2));
+
+          printNavigation();
+          switchState(CliGameState.Start);
+        }
+        break;
       case Start:
         switchBetweenStartCases(s);
         break;
       case Store:
-        //TODO implement the other eggs buying
         if (s.equals("0")) {
           switchState(CliGameState.Start);
           printNavigation();
@@ -103,7 +106,7 @@ public class CliGame implements Runnable {
           buyFood(s);
         }
         break;
-      case StoreEggs:
+      case ChoosingEgg:
         if (s.equals("0")) {
           switchState(CliGameState.Store);
           printStoreProducts();
@@ -160,10 +163,6 @@ public class CliGame implements Runnable {
           }
         }
         break;
-      case ChoosingAnEgg: //TODO
-        printNavigation();
-        switchState(CliGameState.Start);
-        break;
     }
   }
 
@@ -213,7 +212,7 @@ public class CliGame implements Runnable {
       case "Monster Eggs":
         System.out.println("Choose one of the monsters eggs:");
         printEggs();
-        switchState(CliGameState.StoreEggs);
+        switchState(CliGameState.ChoosingEgg);
     }
   }
 
@@ -254,8 +253,8 @@ public class CliGame implements Runnable {
   }
 
   public void breedingChoice(Monster monster1, Monster monster2) {
-    Monster monster = monsterFabric.createMonster(game.breeding(monster1, monster2, monsterFabric).
-        getElements());
+    var monsterToCreate = game.breeding(monster1, monster2, monsterFabric).getElements();
+    Monster monster = monsterFabric.createMonster(monsterToCreate);
     game.getBreeder().setMonster(monster);
     game.getBreeder().setTimeToBreed(); //Вот это questionable, но если инициализировать вместе с
     //монстром - потом ругается на null в монстре при завершении работы потока, пусть пока тут лежит
@@ -264,7 +263,7 @@ public class CliGame implements Runnable {
   public void printStoreProducts() {
     System.out.println("Choose one of the following products " +
         "or press 0 to exit the Monster Store:");
-    for (var i = 1; i < game.getStore().getStoreProducts().size() + 1; i++) {
+    for (int i = 1; i <= game.getStore().getStoreProducts().size(); i++) {
       System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1));
     }
     System.out.println("0. Exit the Monster Store");

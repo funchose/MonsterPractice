@@ -47,12 +47,12 @@ public class Game {
     var elementSet = new HashSet<Monster.Element>();
     Random random = new Random();
     int randomNum = random.nextInt(1, 101);
-    if (monster1.elementSet.size() == 1 && monster2.elementSet.size() == 1) {
+    if (monster1.elementSet.equals(monster2.elementSet)) {
+      elementSet.addAll(monster1.elementSet);
+    } else if (monster1.elementSet.size() == 1 && monster2.elementSet.size() == 1) {
       if (randomNum <= 40) {
-        if (monster1.elementSet != monster2.elementSet) {
-          elementSet.addAll(monster1.elementSet);
-          elementSet.addAll(monster2.elementSet);
-        }
+        elementSet.addAll(monster1.elementSet);
+        elementSet.addAll(monster2.elementSet);
       } else if (randomNum <= 70) {
         elementSet = monster1.elementSet;
       } else {
@@ -67,8 +67,12 @@ public class Game {
       } else {
         elementSet = monster2.elementSet;
       }
-      //А если поместить два двухэлементных монстра?
-      //А если поместить два одинаковых двухэлементных монстра?
+    } else if (monster1.elementSet.size() == 2 && monster2.elementSet.size() == 2) {
+      if (randomNum <= 50) {
+        elementSet.addAll(monster1.elementSet);
+      } else {
+        elementSet.addAll(monster2.elementSet);
+      }
     }
     return monsterFabric.createMonster(elementSet);
   }
