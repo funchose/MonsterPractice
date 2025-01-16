@@ -42,8 +42,7 @@ public class Game {
     setBreeder(new Breeder((Monster monster) -> this.getPlayer().addMonster(monster)));
   }
 
-  public Monster breeding(Monster monster1, Monster monster2, MonsterFabric monsterFabric) {
-    //TODO sleep for each breeding
+  public Monster breeding(Monster monster1, Monster monster2, MonsterFactory monsterFactory) {
     var elementSet = new HashSet<Monster.Element>();
     Random random = new Random();
     int randomNum = random.nextInt(1, 101);
@@ -74,7 +73,7 @@ public class Game {
         elementSet.addAll(monster2.elementSet);
       }
     }
-    return monsterFabric.createMonster(elementSet);
+    return monsterFactory.createMonster(elementSet);
   }
 
   public void update() throws InterruptedException {

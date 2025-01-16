@@ -1,44 +1,86 @@
 package my.practice.monsters.model;
 
 import java.util.HashSet;
-import java.util.Set;
 
 public class Monster {
   protected int level;
   protected int foodAmount;
+  protected HashSet<Element> elementSet;
+  protected int goldRate;
+  protected int goldRateCoef;
+  protected int volume;
+  private String type;
+  private int breedTime;
+
+  public int getGoldRateCoef() {
+    return goldRateCoef;
+  }
+
+  public int getFoodAmount() {
+    return foodAmount;
+  }
+
+  public int getLevel() {
+    return level;
+  }
+
+  public int getGoldRate() {
+    return goldRate;
+  }
+
+  public int getVolume() {
+    return volume;
+  }
+
+  public Monster setLevel(int level) {
+    this.level = level;
+    return this;
+  }
+
+  public Monster setFoodAmount(int foodAmount) {
+    this.foodAmount = foodAmount;
+    return this;
+  }
+
+  public Monster setGoldRate(int goldRate) {
+    this.goldRate = goldRate;
+    return this;
+  }
+
+  public Monster setGoldRateCoef(int goldRateCoef) {
+    this.goldRateCoef = goldRateCoef;
+    return this;
+  }
+
+  public Monster setVolume(int volume) {
+    this.volume = volume;
+    return this;
+  }
+
+  public Monster setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  public Monster setBreedTime(int breedTime) {
+    this.breedTime = breedTime;
+    return this;
+  }
+
+  public Monster(HashSet<Element> elementSet) {
+    this.elementSet = elementSet;
+  }
+
+  public String getType() {
+    return type;
+  }
 
   public HashSet<Element> getElements() {
     return elementSet;
   }
 
-  protected HashSet<Element> elementSet;
-  protected int goldRate;
-  protected int goldRateCoef;
-  protected int volume;
-  private final String type;
-
-  private final int breedTime;
-
-  public String getType() {
-    return type;
-  }
   public int getBreedTime() {
     return breedTime;
-  }
-
-  public Monster(int level, int foodAmount, HashSet<Element> elementSet, int goldRate, int volume,
-                 String type, int breedTime) {
-    this.level = level;
-    this.foodAmount = foodAmount;
-    this.elementSet = elementSet;
-    this.goldRate = goldRate;
-    this.volume = volume;
-    this.type = type;
-    this.breedTime = breedTime;
-  }
-
-  public int getGoldRate() {
-    return level * 5;
   }
 
   public enum Element {
@@ -52,5 +94,10 @@ public class Monster {
   public void refresh() {
     this.goldRate = this.level * goldRateCoef;
     this.volume = level / 5 + elementSet.size();
+  }
+
+  public void feed(int foodAmountToFeed) {
+    level = foodAmountToFeed / elementSet.size();
+    foodAmount = foodAmountToFeed % (level * elementSet.size());
   }
 }

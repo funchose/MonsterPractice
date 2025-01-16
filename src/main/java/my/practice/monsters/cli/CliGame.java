@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CliGame implements Runnable {
   Game game;
-  private final MonsterFabric monsterFabric = new MonsterFabric();
+  private final MonsterFactory monsterFactory = new MonsterFactory();
   private final AtomicReference<String> currentCommand;
   private CliGameState currentState;
   private Monster monster1;
@@ -77,10 +77,10 @@ public class CliGame implements Runnable {
           //TODO Set for tests, don't forget to remove
           HashSet<Monster.Element> elements1 = new HashSet<>();
           elements1.add(Monster.Element.WATER);
-          game.getPlayer().addMonster(monsterFabric.createMonster(elements1));
+          game.getPlayer().addMonster(monsterFactory.createMonster(elements1));
           HashSet<Monster.Element> elements2 = new HashSet<>();
           elements2.add(Monster.Element.FIRE);
-          game.getPlayer().addMonster(monsterFabric.createMonster(elements2));
+          game.getPlayer().addMonster(monsterFactory.createMonster(elements2));
 
           printNavigation();
           switchState(CliGameState.Start);
@@ -159,6 +159,7 @@ public class CliGame implements Runnable {
                 "press 0 to go back to the Main Menu:");
           } else {
             game.getPlayer().removeFoodBowls(foodAmountToFeed);
+            this.monsterForFeeding.feed(foodAmountToFeed);
             //TODO add setters for monsterForFeeding level and gold.
           }
         }
@@ -253,8 +254,8 @@ public class CliGame implements Runnable {
   }
 
   public void breedingChoice(Monster monster1, Monster monster2) {
-    var monsterToCreate = game.breeding(monster1, monster2, monsterFabric).getElements();
-    Monster monster = monsterFabric.createMonster(monsterToCreate);
+    var monsterToCreate = game.breeding(monster1, monster2, monsterFactory).getElements();
+    Monster monster = monsterFactory.createMonster(monsterToCreate);
     game.getBreeder().setMonster(monster);
     game.getBreeder().setTimeToBreed(); //Вот это questionable, но если инициализировать вместе с
     //монстром - потом ругается на null в монстре при завершении работы потока, пусть пока тут лежит
@@ -286,7 +287,7 @@ public class CliGame implements Runnable {
       System.out.println("You've bought " + egg.getName() + "!");
       var set = new HashSet<Monster.Element>();
       set.addAll(egg.getElements());
-      var monster = monsterFabric.createMonster(set);
+      var monster = monsterFactory.createMonster(set);
       game.getPlayer().addMonster(monster);
       game.getPlayer().setGold(game.getPlayer().getGold() - egg.getPrice());
       System.out.println("Your gold: " + game.getPlayer().getGold());

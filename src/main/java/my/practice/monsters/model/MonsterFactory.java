@@ -6,45 +6,20 @@ import kotlin.NotImplementedError;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MonsterFabric {
+public class MonsterFactory {
   Gson gson = new Gson();
-  int goldRate;
+  int goldRateCoef;
   int level;
   int volume;
   String type;
   int breedTime; //in seconds
 
-
-  public MonsterFabric setGoldRate(int goldRate) {
-    this.goldRate = goldRate;
-    return this;
-  }
-
-  public MonsterFabric setLevel(int level) {
-    this.level = level;
-    return this;
-  }
-
-  public MonsterFabric setVolume(int volume) {
-    this.volume = volume;
-    return this;
-  }
-
-  public MonsterFabric setType(String type) {
-    this.type = type;
-    return this;
-  }
-
-  public MonsterFabric setBreedTime(int breedTime) {
-    this.breedTime = breedTime;
-    return this;
-  }
-
   public Monster createMonster(HashSet<Monster.Element> elements) {
-    // MonsterFabric mf = this.gson.fromJson("MonstersData", MonsterFabric.class);
+    // MonsterFactory mf = this.gson.fromJson("MonstersData", MonsterFactory.class);
+    var monster = new Monster(elements);
     if (elements.size() == 1) {
       level = 1;
-      goldRate = level * 5;
+      goldRateCoef = 5;
       volume = 1;
       breedTime = 10; //for testing
 
@@ -60,7 +35,7 @@ public class MonsterFabric {
 
     } else if (elements.size() == 2) {
       level = 1;
-      goldRate = level * 10;
+      goldRateCoef = 10;
       volume = 2;
       breedTime = 10; //for testing
       if (elements.equals(Set.of(Monster.Element.WATER, Monster.Element.AIR))) {
@@ -74,13 +49,19 @@ public class MonsterFabric {
       }
     } else {
       level = 1;
-      goldRate = level * 15;
+      goldRateCoef = 15;
       volume = 3;
       type = "Gale";
       breedTime = 7200;
     }
-    return new Monster(
-        1, 0, elements, goldRate, volume, type, breedTime
-    );
+    monster.setLevel(1)
+        .setFoodAmount(0)
+        .setGoldRate(goldRateCoef)
+        .setGoldRateCoef(goldRateCoef)
+        .setFoodAmount(0)
+        .setVolume(volume)
+        .setType(type)
+        .setBreedTime(breedTime);
+    return monster;
   }
 }
