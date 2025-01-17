@@ -94,10 +94,21 @@ public class Monster {
   public void refresh() {
     this.goldRate = this.level * goldRateCoef;
     this.volume = level / 5 + elementSet.size();
+    if (this.volume > 5) {
+      this.volume = 5;
+    }
   }
 
   public void feed(int foodAmountToFeed) {
-    level = foodAmountToFeed / elementSet.size();
-    foodAmount = foodAmountToFeed % (level * elementSet.size());
+    int levelSum = level;
+    int reachedLevel = level;
+    int foodPerElement = foodAmountToFeed / elementSet.size();
+    while(foodPerElement >= reachedLevel) {
+      foodPerElement -= reachedLevel;
+      reachedLevel++;
+      levelSum += reachedLevel;
+    }
+    level = reachedLevel;
+    foodAmount = foodAmountToFeed - elementSet.size() * (levelSum - level);
   }
 }

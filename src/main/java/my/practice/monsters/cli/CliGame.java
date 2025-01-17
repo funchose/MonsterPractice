@@ -159,8 +159,8 @@ public class CliGame implements Runnable {
                 "press 0 to go back to the Main Menu:");
           } else {
             game.getPlayer().removeFoodBowls(foodAmountToFeed);
-            this.monsterForFeeding.feed(foodAmountToFeed);
-            //TODO add setters for monsterForFeeding level and gold.
+            monsterForFeeding.feed(foodAmountToFeed);
+            monsterForFeeding.refresh();
           }
         }
         break;

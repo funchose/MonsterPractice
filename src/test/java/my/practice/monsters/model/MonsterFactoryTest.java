@@ -1,15 +1,14 @@
 package my.practice.monsters.model;
 
 import org.junit.jupiter.api.Assertions;
+import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-
-class MonsterFabricTest {
+class MonsterFactoryTest {
 
   @Test
   void createMonsterTest() {
-    MonsterFabric fabric = new MonsterFabric();
+    MonsterFactory fabric = new MonsterFactory();
     HashSet<Monster.Element> elements = new HashSet<>();
     elements.add(Monster.Element.WATER);
     elements.add(Monster.Element.FIRE);
