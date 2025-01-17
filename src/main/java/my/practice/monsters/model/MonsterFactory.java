@@ -19,7 +19,7 @@ public class MonsterFactory {
     var monster = new Monster(elements);
     if (elements.size() == 1) {
       level = 1;
-      goldRateCoef = 5;
+      goldRateCoef = 1;
       volume = 1;
       breedTime = 10; //for testing
 
@@ -35,7 +35,7 @@ public class MonsterFactory {
 
     } else if (elements.size() == 2) {
       level = 1;
-      goldRateCoef = 10;
+      goldRateCoef = 2;
       volume = 2;
       breedTime = 10; //for testing
       if (elements.equals(Set.of(Monster.Element.WATER, Monster.Element.AIR))) {
@@ -49,7 +49,7 @@ public class MonsterFactory {
       }
     } else {
       level = 1;
-      goldRateCoef = 15;
+      goldRateCoef = 3;
       volume = 3;
       type = "Gale";
       breedTime = 7200;

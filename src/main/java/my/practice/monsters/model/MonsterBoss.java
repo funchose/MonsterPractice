@@ -1,7 +1,7 @@
 package my.practice.monsters.model;
 
 public class MonsterBoss {
-  boolean isAsleep;
+  boolean isAwake;
 
   private final Monster.Element element;
 
@@ -10,7 +10,12 @@ public class MonsterBoss {
   }
 
   public MonsterBoss() {
-    isAsleep = true;
+    isAwake = false;
     element = Monster.Element.ENERGY;
+  }
+
+  public void wakeUp() {
+    isAwake = true;
+    System.out.println("Congratulations! You won!");
   }
 }

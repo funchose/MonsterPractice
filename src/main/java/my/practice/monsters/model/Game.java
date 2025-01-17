@@ -11,6 +11,7 @@ public class Game {
   Store store;
 
   Breeder breeder;
+  MonsterBoss monsterBoss;
 
   public void setPlayer(Player player) {
     this.player = player;
@@ -37,7 +38,7 @@ public class Game {
   }
 
   public void startGame() {
-    MonsterBoss monsterBoss = new MonsterBoss();
+    monsterBoss = new MonsterBoss();
     setStore(new Store());
     setBreeder(new Breeder((Monster monster) -> this.getPlayer().addMonster(monster)));
   }
@@ -78,6 +79,12 @@ public class Game {
 
   public void update() throws InterruptedException {
     breeder.update();
+    if (player != null) {
+      player.update();
+      if (player.hasWon()) {
+        monsterBoss.wakeUp();
+      }
+    }
   }
 
   public void buyFood(int foodAmount) {

@@ -1,26 +1,27 @@
 package my.practice.monsters.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class Player {
   private String name;
+  private int gold = 200;
+  private int foodBowls = 0;
+  private ArrayList<Monster> monsters = new ArrayList<>();
+
+  public void addFoodBowls(int foodBowls) {
+    this.foodBowls += foodBowls;
+  }
 
   public Player setGold(int gold) {
     this.gold = gold;
     return this;
   }
 
-  private int gold = 10;
-
-  public void addFoodBowls(int foodBowls) {
-    this.foodBowls += foodBowls;
-  }
-
   public int getFoodBowls() {
     return foodBowls;
   }
-
-  private int foodBowls = 0;
 
   public int getGold() {
     return gold;
@@ -29,8 +30,6 @@ public class Player {
   public ArrayList<Monster> getMonsters() {
     return monsters;
   }
-
-  private ArrayList<Monster> monsters = new ArrayList<>();
 
   public String getName() {
     return name;
@@ -54,5 +53,25 @@ public class Player {
 
   public void removeFoodBowls(int foodBowls) {
     this.foodBowls -= foodBowls;
+  }
+
+  public void update() {
+    for (Monster monster : monsters) {
+      gold += monster.getGoldRate();
+      printStats();
+    }
+  }
+
+  public boolean hasWon() {
+    var allMonsters = new HashSet<String>();
+    allMonsters.add("Splash");
+    allMonsters.add("Bubble");
+    allMonsters.add("Spark");
+    allMonsters.add("Breeze");
+    allMonsters.add("Pyro");
+    allMonsters.add("Whirl");
+    allMonsters.add("Gale");
+    var playerMonsters = monsters.stream().map(Monster::getType).collect(Collectors.toSet());
+    return playerMonsters.equals(allMonsters);
   }
 }
