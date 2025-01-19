@@ -7,11 +7,10 @@ import java.util.Random;
 
 public class Game {
   private Player player = null;
-
   Store store;
-
   Breeder breeder;
   MonsterBoss monsterBoss;
+  private final int VOLUME_TO_WIN = 25;
 
   public void setPlayer(Player player) {
     this.player = player;
@@ -47,31 +46,31 @@ public class Game {
     var elementSet = new HashSet<Monster.Element>();
     Random random = new Random();
     int randomNum = random.nextInt(1, 101);
-    if (monster1.elementSet.equals(monster2.elementSet)) {
-      elementSet.addAll(monster1.elementSet);
-    } else if (monster1.elementSet.size() == 1 && monster2.elementSet.size() == 1) {
+    if (monster1.getElements().equals(monster2.getElements())) {
+      elementSet.addAll(monster1.getElements());
+    } else if (monster1.getElements().size() == 1 && monster2.getElements().size() == 1) {
       if (randomNum <= 40) {
-        elementSet.addAll(monster1.elementSet);
-        elementSet.addAll(monster2.elementSet);
+        elementSet.addAll(monster1.getElements());
+        elementSet.addAll(monster2.getElements());
       } else if (randomNum <= 70) {
-        elementSet = monster1.elementSet;
+        elementSet = monster1.getElements();
       } else {
-        elementSet = monster2.elementSet;
+        elementSet = monster2.getElements();
       }
-    } else if (monster1.elementSet.size() + monster2.elementSet.size() == 3) {
+    } else if (monster1.getElements().size() + monster2.getElements().size() == 3) {
       if (randomNum <= 20) {
-        elementSet.addAll(monster1.elementSet);
-        elementSet.addAll(monster2.elementSet);
+        elementSet.addAll(monster1.getElements());
+        elementSet.addAll(monster2.getElements());
       } else if (randomNum <= 60) {
-        elementSet = monster1.elementSet;
+        elementSet = monster1.getElements();
       } else {
-        elementSet = monster2.elementSet;
+        elementSet = monster2.getElements();
       }
-    } else if (monster1.elementSet.size() == 2 && monster2.elementSet.size() == 2) {
+    } else if (monster1.getElements().size() == 2 && monster2.getElements().size() == 2) {
       if (randomNum <= 50) {
-        elementSet.addAll(monster1.elementSet);
+        elementSet.addAll(monster1.getElements());
       } else {
-        elementSet.addAll(monster2.elementSet);
+        elementSet.addAll(monster2.getElements());
       }
     }
     return monsterFactory.createMonster(elementSet);
@@ -81,7 +80,8 @@ public class Game {
     breeder.update();
     if (player != null) {
       player.update();
-      if (player.hasWon()) {
+      isVolumeEnough();
+      if (player.hasWon() && !monsterBoss.isAwake) {
         monsterBoss.wakeUp();
       }
     }
@@ -91,5 +91,11 @@ public class Game {
     player.addFoodBowls(foodAmount);
     final var newGold = player.getGold() - store.getFoodBowl().getPrice();
     player.setGold(newGold);
+  }
+
+  public void isVolumeEnough() {
+    if (player.getTotalVolume() >= VOLUME_TO_WIN) {
+      player.setVolumeEnough(true);
+    }
   }
 }

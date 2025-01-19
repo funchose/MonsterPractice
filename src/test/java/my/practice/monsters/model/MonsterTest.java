@@ -42,7 +42,7 @@ public class MonsterTest {
     var monster = monsterFactory.createMonster(elements);
     monster.feed(1000);
     monster.refresh();
-    Assertions.assertEquals(5, monster.volume);
+    Assertions.assertEquals(5, monster.getVolume());
   }
 
   @Test
@@ -53,7 +53,7 @@ public class MonsterTest {
     var monster = monsterFactory.createMonster(elements);
     monster.feed(100);
     monster.refresh();
-    Assertions.assertEquals(14, monster.level);
-    Assertions.assertEquals(3, monster.volume);
+    Assertions.assertEquals(14, monster.getLevel());
+    Assertions.assertEquals(3, monster.getVolume());
   }
 }

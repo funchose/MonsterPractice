@@ -16,6 +16,7 @@ public class MonsterBoss {
 
   public void wakeUp() {
     isAwake = true;
-    System.out.println("Congratulations! You won!");
+    System.out.println("Monster Boss is finally awake! Congratulations! You won!");
+    //TODO check that it appears only once
   }
 }

@@ -52,7 +52,7 @@ public class MonsterFactory {
       goldRateCoef = 3;
       volume = 3;
       type = "Gale";
-      breedTime = 7200;
+      breedTime = 10; //for testing
     }
     monster.setLevel(1)
         .setFoodAmount(0)

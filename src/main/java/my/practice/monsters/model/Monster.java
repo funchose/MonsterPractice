@@ -3,12 +3,12 @@ package my.practice.monsters.model;
 import java.util.HashSet;
 
 public class Monster {
-  protected int level;
-  protected int foodAmount;
-  protected HashSet<Element> elementSet;
-  protected int goldRate;
-  protected int goldRateCoef;
-  protected int volume;
+  private int level;
+  private int foodAmount;
+  private final HashSet<Element> elementSet;
+  private int goldRate;
+  private int goldRateCoef;
+  private int volume;
   private String type;
   private int breedTime;
 
@@ -103,7 +103,7 @@ public class Monster {
     int levelSum = level;
     int reachedLevel = level;
     int foodPerElement = foodAmountToFeed / elementSet.size();
-    while(foodPerElement >= reachedLevel) {
+    while (foodPerElement >= reachedLevel) {
       foodPerElement -= reachedLevel;
       reachedLevel++;
       levelSum += reachedLevel;

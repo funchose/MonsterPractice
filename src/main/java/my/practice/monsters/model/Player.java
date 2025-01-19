@@ -6,9 +6,26 @@ import java.util.stream.Collectors;
 
 public class Player {
   private String name;
-  private int gold = 200;
+  private int gold = 300;
   private int foodBowls = 0;
-  private ArrayList<Monster> monsters = new ArrayList<>();
+
+  public int getTotalVolume() {
+    return totalVolume;
+  }
+
+  private int totalVolume = 0;
+
+  public boolean isVolumeEnough() {
+    return volumeEnough;
+  }
+
+  public void setVolumeEnough(boolean volumeEnough) {
+    this.volumeEnough = volumeEnough;
+  }
+
+  private boolean volumeEnough = false;
+
+  private final ArrayList<Monster> monsters = new ArrayList<>();
 
   public void addFoodBowls(int foodBowls) {
     this.foodBowls += foodBowls;
@@ -58,7 +75,7 @@ public class Player {
   public void update() {
     for (Monster monster : monsters) {
       gold += monster.getGoldRate();
-      printStats();
+      totalVolume += monster.getVolume();
     }
   }
 
@@ -72,6 +89,7 @@ public class Player {
     allMonsters.add("Whirl");
     allMonsters.add("Gale");
     var playerMonsters = monsters.stream().map(Monster::getType).collect(Collectors.toSet());
-    return playerMonsters.equals(allMonsters);
+    boolean collectedAllMonsters = playerMonsters.equals(allMonsters);
+    return collectedAllMonsters && isVolumeEnough();
   }
 }

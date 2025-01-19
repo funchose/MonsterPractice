@@ -61,9 +61,16 @@ public class GameTest {
     player.addMonster(monster5);
     player.addMonster(monster6);
     player.addMonster(monster7);
+    var game = new Game();
+    game.setPlayer(player);
     for (Monster monster : player.getMonsters()) {
       System.out.println(monster.getType());
     }
+    Assertions.assertFalse(player.hasWon());
+    monster7.setVolume(17);
+    player.update();
+    System.out.println(player.getTotalVolume());
+    game.isVolumeEnough();
     Assertions.assertTrue(player.hasWon());
   }
 }

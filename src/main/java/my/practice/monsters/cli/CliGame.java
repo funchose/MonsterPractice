@@ -31,9 +31,6 @@ public class CliGame implements Runnable {
     System.out.println("Please, enter your name:");
     String input;
     while (!Thread.currentThread().isInterrupted()) {
-      //handling user's input, not waiting for it
-      //updating the game
-      //sleep with many options
       try {
         input = currentCommand.get();
         if (input != null) {
@@ -71,17 +68,9 @@ public class CliGame implements Runnable {
             and raise monsters to wake the MonsterBoss up!
             """);
         if (game.getPlayer() != null) {
-          System.out.printf("Have a nice game, %s! Go to the Store and buy your first Monster Egg!%n",
+          System.out.printf("Have a nice game, %s!" +
+                  "Go to the Store and buy your first Monster Egg!%n",
               game.getPlayer().getName());
-
-          //TODO Set for tests, don't forget to remove
-          HashSet<Monster.Element> elements1 = new HashSet<>();
-          elements1.add(Monster.Element.WATER);
-          game.getPlayer().addMonster(monsterFactory.createMonster(elements1));
-          HashSet<Monster.Element> elements2 = new HashSet<>();
-          elements2.add(Monster.Element.FIRE);
-          game.getPlayer().addMonster(monsterFactory.createMonster(elements2));
-
           printNavigation();
           switchState(CliGameState.Start);
         }
