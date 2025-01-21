@@ -1,0 +1,70 @@
+[
+  {
+    "elements": [
+      "WATER"
+    ],
+    "type": "Splash",
+    "breedTime": 5,
+    "initVolume": 1,
+    "goldRateCoef": 5
+  },
+  {
+    "elements": [
+      "AIR"
+    ],
+    "type": "Bubble",
+    "breedTime": 5,
+    "initVolume": 1,
+    "goldRateCoef": 5
+  },
+  {
+    "elements": [
+      "FIRE"
+    ],
+    "type": "Spark",
+    "breedTime": 5,
+    "initVolume": 1,
+    "goldRateCoef": 5
+  },
+  {
+    "elements": [
+      "WATER",
+      "AIR"
+    ],
+    "type": "Breeze",
+    "breedTime": 30,
+    "initVolume": 2,
+    "goldRateCoef": 10
+  },
+  {
+    "elements": [
+      "WATER",
+      "FIRE"
+    ],
+    "type": "Pyro",
+    "breedTime": 30,
+    "initVolume": 2,
+    "goldRateCoef": 10
+  },
+  {
+    "elements": [
+      "AIR",
+      "FIRE"
+    ],
+    "type": "Whirl",
+    "breedTime": 30,
+    "initVolume": 2,
+    "goldRateCoef": 10
+  },
+  {
+    "elements": [
+      "WATER",
+      "AIR",
+      "FIRE"
+    ],
+    "type": "Gale",
+    "breedTime": 120,
+    "initVolume": 3,
+    "goldRateCoef": 15
+  }
+]
