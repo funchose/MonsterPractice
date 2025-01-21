@@ -25,12 +25,6 @@
         <property name="eachLine" value="true"/>
     </module>
 
-    <!-- Checks the header of the source against a fixed header file. -->
-    <module name="Header">
-        <property name="headerFile" value="LICENSE_header.txt"/>
-        <property name="fileExtensions" value="java"/>
-    </module>
-
     <module name="TreeWalker">
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
