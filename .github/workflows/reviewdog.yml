@@ -11,4 +11,4 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-check
           level: error
-          checkstyle_config: google_checks.xml
+          checkstyle_config: checkstyle.xml
