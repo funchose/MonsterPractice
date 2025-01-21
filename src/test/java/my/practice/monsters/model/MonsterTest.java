@@ -1,10 +1,9 @@
 package my.practice.monsters.model;
 
 
+import java.util.HashSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashSet;
 
 public class MonsterTest {
   @Test

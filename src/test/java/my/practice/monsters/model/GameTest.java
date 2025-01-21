@@ -19,7 +19,7 @@ public class GameTest {
     Monster monster1 = new MonsterFactory().createMonster(elements1);
     Monster monster2 = new MonsterFactory().createMonster(elements2);
     Monster monster3 = game.breeding(monster1, monster2, monsterFactory);
-    System.out.printf("%s + %s = %s%n",monster1.getType(), monster2.getType(), monster3.getType());
+    System.out.printf("%s + %s = %s%n", monster1.getType(), monster2.getType(), monster3.getType());
   }
 
   @Test

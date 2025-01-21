@@ -1,10 +1,9 @@
 package my.practice.monsters.cli;
 
-import my.practice.monsters.model.*;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicReference;
+import my.practice.monsters.model.*;
 
 public class CliGame implements Runnable {
   Game game;
@@ -74,8 +73,8 @@ public class CliGame implements Runnable {
             and raise monsters to wake the MonsterBoss up!
             """);
         if (game.getPlayer() != null) {
-          System.out.printf("Have a nice game, %s! " +
-                  "Go to the Store and buy your first Monster Egg!%n",
+          System.out.printf("Have a nice game, %s! "
+                  + "Go to the Store and buy your first Monster Egg!%n",
               game.getPlayer().getName());
           printNavigation();
           switchState(CliGameState.Start);
@@ -119,8 +118,8 @@ public class CliGame implements Runnable {
           System.out.println("Choose monster #2:");
           switchState(CliGameState.ChoosingMonster2);
         } catch (IndexOutOfBoundsException e) {
-          System.out.println("There is no monster with this number. " +
-              "Choose again or press 0 to go to the Main Menu:");
+          System.out.println("There is no monster with this number. "
+              + "Choose again or press 0 to go to the Main Menu:");
         }
         break;
       case ChoosingMonster2:
@@ -132,8 +131,8 @@ public class CliGame implements Runnable {
           switchState(CliGameState.Start);
           printNavigation();
         } catch (IndexOutOfBoundsException e) {
-          System.out.println("There is no monster with this number. " +
-              "Choose again or press 0 to go to the Main Menu:");
+          System.out.println("There is no monster with this number. "
+              + "Choose again or press 0 to go to the Main Menu:");
         }
         break;
       case ChoosingMonsterForFeeding:
@@ -143,13 +142,13 @@ public class CliGame implements Runnable {
             switchState(CliGameState.Start);
           } else {
             this.monsterForFeeding = getMonster(s);
-            System.out.println("How many bowls would you like to feed it? " +
-                "(Press 0 to go the Main Menu)");
+            System.out.println("How many bowls would you like to feed it? "
+                + "(Press 0 to go the Main Menu)");
             switchState(CliGameState.ChoosingFoodForFeeding);
           }
         } catch (IndexOutOfBoundsException e) {
-          System.out.println("There is no monster with this number. " +
-              "Choose again or press 0 to go to the Main Menu:");
+          System.out.println("There is no monster with this number. "
+              + "Choose again or press 0 to go to the Main Menu:");
         }
         break;
       case ChoosingFoodForFeeding:
@@ -160,8 +159,8 @@ public class CliGame implements Runnable {
         } else {
           var foodAmountToFeed = Integer.parseInt(s);
           if (!isAbleToFeed(foodAmountToFeed)) {
-            System.out.println("You don't have enough food bowls! Choose another amount or " +
-                "press 0 to go back to the Main Menu:");
+            System.out.println("You don't have enough food bowls! Choose another amount or "
+                + "press 0 to go back to the Main Menu:");
           } else {
             game.getPlayer().removeFoodBowls(foodAmountToFeed);
             monsterForFeeding.feed(foodAmountToFeed);
@@ -271,8 +270,8 @@ public class CliGame implements Runnable {
   }
 
   public void printStoreProducts() {
-    System.out.println("Choose one of the following products " +
-        "or press 0 to exit the Monster Store:");
+    System.out.println("Choose one of the following products "
+        + "or press 0 to exit the Monster Store:");
     for (int i = 1; i <= game.getStore().getStoreProducts().size(); i++) {
       System.out.println(i + ". " + game.getStore().getStoreProducts().get(i - 1));
     }
