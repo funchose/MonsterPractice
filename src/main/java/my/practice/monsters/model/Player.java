@@ -73,10 +73,12 @@ public class Player {
   }
 
   public void update() {
+    int currentVolume = 0;
     for (Monster monster : monsters) {
       gold += monster.getGoldRate();
-      totalVolume += monster.getVolume();
+      currentVolume += monster.getVolume();
     }
+    totalVolume = currentVolume;
   }
 
   public boolean hasWon() {

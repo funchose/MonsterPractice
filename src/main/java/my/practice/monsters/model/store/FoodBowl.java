@@ -5,6 +5,7 @@ public class FoodBowl implements Product {
 
   public FoodBowl() {
   }
+
   @Override
   public int getPrice() {
     return price;

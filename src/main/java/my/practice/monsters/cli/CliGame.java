@@ -10,6 +10,11 @@ public class CliGame implements Runnable {
   Game game;
   private final MonsterFactory monsterFactory = new MonsterFactory();
   private final AtomicReference<String> currentCommand;
+
+  public void setCurrentState(CliGameState currentState) {
+    this.currentState = currentState;
+  }
+
   private CliGameState currentState;
   private Monster monster1;
   private Monster monster2;
@@ -33,7 +38,7 @@ public class CliGame implements Runnable {
     while (!Thread.currentThread().isInterrupted()) {
       try {
         input = currentCommand.get();
-        if (input != null) {
+        if (input != null && !input.isEmpty()) {
           handleInput(input);
           currentCommand.set(null);
         }
@@ -42,9 +47,10 @@ public class CliGame implements Runnable {
       } catch (InterruptedException e) {
         System.out.println("Thread was interrupted");
         Thread.currentThread().interrupt();
-      } catch (IOException e) {
+      } catch (IOException | NumberFormatException e) {
         System.out.println("Incorrect input");
-        throw new RuntimeException(e);
+        currentCommand.set(null);
+        //throw new RuntimeException(e);
       }
     }
   }
@@ -68,7 +74,7 @@ public class CliGame implements Runnable {
             and raise monsters to wake the MonsterBoss up!
             """);
         if (game.getPlayer() != null) {
-          System.out.printf("Have a nice game, %s!" +
+          System.out.printf("Have a nice game, %s! " +
                   "Go to the Store and buy your first Monster Egg!%n",
               game.getPlayer().getName());
           printNavigation();
@@ -83,8 +89,12 @@ public class CliGame implements Runnable {
           switchState(CliGameState.Start);
           printNavigation();
         } else {
-          var product = getProduct(s);
-          switchBetweenProducts(product);
+          try {
+            var product = getProduct(s);
+            switchBetweenProducts(product);
+          } catch (IndexOutOfBoundsException e) {
+            System.out.println("Incorrect option. Try again: ");
+          }
         }
         break;
       case ChoosingFoodAmountForBuying:
@@ -109,7 +119,7 @@ public class CliGame implements Runnable {
           System.out.println("Choose monster #2:");
           switchState(CliGameState.ChoosingMonster2);
         } catch (IndexOutOfBoundsException e) {
-          System.out.println("There is no monster with this number." +
+          System.out.println("There is no monster with this number. " +
               "Choose again or press 0 to go to the Main Menu:");
         }
         break;
@@ -117,8 +127,8 @@ public class CliGame implements Runnable {
         try {
           this.monster2 = getMonster(s);
           breedingChoice(monster1, monster2);
-          System.out.println("You are breeding " + monster1.getType() + " and " + monster2.getType()
-              + ". Breeding time: " + game.getBreeder().getTimeToBreed());
+          System.out.printf("You are breeding %s and %s. Breeding time: %d second(s)%n",
+              monster1.getType(), monster2.getType(), game.getBreeder().getTimeToBreed());
           switchState(CliGameState.Start);
           printNavigation();
         } catch (IndexOutOfBoundsException e) {
@@ -128,10 +138,15 @@ public class CliGame implements Runnable {
         break;
       case ChoosingMonsterForFeeding:
         try {
-          this.monsterForFeeding = getMonster(s);
-          System.out.println("How many bowls would you like to feed it? " +
-              "(Press 0 to go the Main Menu)");
-          switchState(CliGameState.ChoosingFoodForFeeding);
+          if (s.equals("0")) {
+            printNavigation();
+            switchState(CliGameState.Start);
+          } else {
+            this.monsterForFeeding = getMonster(s);
+            System.out.println("How many bowls would you like to feed it? " +
+                "(Press 0 to go the Main Menu)");
+            switchState(CliGameState.ChoosingFoodForFeeding);
+          }
         } catch (IndexOutOfBoundsException e) {
           System.out.println("There is no monster with this number. " +
               "Choose again or press 0 to go to the Main Menu:");
@@ -139,6 +154,7 @@ public class CliGame implements Runnable {
         break;
       case ChoosingFoodForFeeding:
         if (s.equals("0")) {
+          monsterForFeeding = null;
           printNavigation();
           switchState(CliGameState.Start);
         } else {
@@ -150,6 +166,10 @@ public class CliGame implements Runnable {
             game.getPlayer().removeFoodBowls(foodAmountToFeed);
             monsterForFeeding.feed(foodAmountToFeed);
             monsterForFeeding.refresh();
+            System.out.println("You've fed the " + monsterForFeeding.getType()
+                + "! You have " + game.getPlayer().getFoodBowls() + " Food Bowl(s) left.");
+            System.out.println("Choose another amount to feed " + monsterForFeeding.getType()
+                + " or press 0 to go back to the Main Menu:");
           }
         }
         break;
@@ -160,6 +180,7 @@ public class CliGame implements Runnable {
     switch (s) {
       case "1":
         switchState(CliGameState.Store);
+        game.getPlayer().printStats();
         printStoreProducts();
         break;
       case "2":
@@ -196,11 +217,13 @@ public class CliGame implements Runnable {
   private void switchBetweenProducts(String product) {
     switch (product) {
       case "Food":
-        System.out.println("How many Food Bowls would you like to buy?");
+        System.out.println("Food Bowl price: " + game.getStore().getFoodBowl().getPrice()
+            + ". How many Food Bowls would you like to buy?");
         switchState(CliGameState.ChoosingFoodAmountForBuying);
         break;
       case "Monster Eggs":
-        System.out.println("Choose one of the monsters eggs:");
+        System.out.println("Egg price: " + game.getStore().getEggsList().get(0).getPrice()
+            + ". Choose one of the monsters eggs:");
         printEggs();
         switchState(CliGameState.ChoosingEgg);
     }
@@ -211,16 +234,14 @@ public class CliGame implements Runnable {
     final var price = foodAmount * game.getStore().getFoodBowl().getPrice();
     if (isAbleToBuyProduct(price)) {
       game.buyFood(foodAmount);
-      System.out.println("You've bought " + foodAmount + " Food Bowl(s). Now you have " +
-          game.getPlayer().getFoodBowls() + " Food Bowl(s).");
-      System.out.println("Your gold: " + game.getPlayer().getGold());
-
+      System.out.println("You've bought " + foodAmount + " Food Bowl(s). Now you have "
+          + game.getPlayer().getFoodBowls() + " Food Bowl(s).");
+      game.getPlayer().printStats();
       switchState(CliGameState.Store);
       printStoreProducts();
     } else {
-      System.out.println("You don't have enough gold! Choose another amount or " +
-          "press 0 to go back to the Monster Store:");
-
+      System.out.println("You don't have enough gold! Choose another amount or "
+          + "press 0 to go back to the Monster Store:");
     }
   }
 
@@ -246,8 +267,7 @@ public class CliGame implements Runnable {
     var monsterToCreate = game.breeding(monster1, monster2, monsterFactory).getElements();
     Monster monster = monsterFactory.createMonster(monsterToCreate);
     game.getBreeder().setMonster(monster);
-    game.getBreeder().setTimeToBreed(); //Вот это questionable, но если инициализировать вместе с
-    //монстром - потом ругается на null в монстре при завершении работы потока, пусть пока тут лежит
+    game.getBreeder().setTimeToBreed();
   }
 
   public void printStoreProducts() {

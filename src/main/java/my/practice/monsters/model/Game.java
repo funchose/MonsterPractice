@@ -1,16 +1,15 @@
 package my.practice.monsters.model;
 
-import my.practice.monsters.model.store.Store;
-
 import java.util.HashSet;
 import java.util.Random;
+import my.practice.monsters.model.store.Store;
 
 public class Game {
   private Player player = null;
   Store store;
   Breeder breeder;
   MonsterBoss monsterBoss;
-  private final int VOLUME_TO_WIN = 25;
+  private static final int VOLUME_TO_WIN = 35;
 
   public void setPlayer(Player player) {
     this.player = player;
@@ -89,7 +88,7 @@ public class Game {
 
   public void buyFood(int foodAmount) {
     player.addFoodBowls(foodAmount);
-    final var newGold = player.getGold() - store.getFoodBowl().getPrice();
+    final var newGold = player.getGold() - store.getFoodBowl().getPrice() * foodAmount;
     player.setGold(newGold);
   }
 

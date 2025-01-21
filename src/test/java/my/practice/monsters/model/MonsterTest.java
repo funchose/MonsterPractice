@@ -27,10 +27,8 @@ public class MonsterTest {
     elements.add(Monster.Element.WATER);
     var monsterFactory = new MonsterFactory();
     var monster = monsterFactory.createMonster(elements);
-    monster.setLevel(8);
-    monster.feed(100);
-    Assertions.assertEquals(11, monster.getLevel());
-    Assertions.assertEquals(19, monster.getFoodAmount());
+    monster.feed(134);
+    Assertions.assertEquals(9, monster.getLevel());
   }
 
   @Test

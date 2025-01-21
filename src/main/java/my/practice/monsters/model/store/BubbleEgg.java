@@ -1,12 +1,12 @@
 package my.practice.monsters.model.store;
 
+import java.util.HashSet;
 import my.practice.monsters.model.Monster;
 
-import java.util.HashSet;
-
-public class BubbleEgg extends Egg{
+public class BubbleEgg extends Egg {
   private final String name;
   private final HashSet<Monster.Element> elements;
+
   @Override
   public String getName() {
     return name;

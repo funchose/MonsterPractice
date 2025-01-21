@@ -1,12 +1,12 @@
 package my.practice.monsters.model.store;
 
+import java.util.HashSet;
 import my.practice.monsters.model.Monster;
 
-import java.util.HashSet;
-
-public class SparkEgg extends Egg{
+public class SparkEgg extends Egg {
   private final String name;
   private final HashSet<Monster.Element> elements;
+
   @Override
   public String getName() {
     return name;

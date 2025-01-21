@@ -10,8 +10,6 @@ public class Store {
 
   private final FoodBowl foodBowl;
 
-
-  //TODO Поправить названия методов и полей после реализации парсинга JSON
   public Store() {
     this.storeProducts = new ArrayList<>();
     storeProducts.add(0, "Food");
@@ -26,6 +24,7 @@ public class Store {
   public FoodBowl getFoodBowl() {
     return foodBowl;
   }
+
   public List<String> getStoreProducts() {
     return this.storeProducts;
   }

@@ -1,10 +1,9 @@
 package my.practice.monsters.model;
 
 import com.google.gson.Gson;
-import kotlin.NotImplementedError;
-
 import java.util.HashSet;
 import java.util.Set;
+import kotlin.NotImplementedError;
 
 public class MonsterFactory {
   Gson gson = new Gson();
@@ -21,7 +20,7 @@ public class MonsterFactory {
       level = 1;
       goldRateCoef = 1;
       volume = 1;
-      breedTime = 10; //for testing
+      breedTime = 1; //for testing
 
       if (elements.equals(Set.of(Monster.Element.WATER))) {
         type = "Splash";
@@ -37,7 +36,7 @@ public class MonsterFactory {
       level = 1;
       goldRateCoef = 2;
       volume = 2;
-      breedTime = 10; //for testing
+      breedTime = 1; //for testing
       if (elements.equals(Set.of(Monster.Element.WATER, Monster.Element.AIR))) {
         type = "Breeze";
       } else if (elements.equals(Set.of(Monster.Element.WATER, Monster.Element.FIRE))) {
@@ -52,7 +51,7 @@ public class MonsterFactory {
       goldRateCoef = 3;
       volume = 3;
       type = "Gale";
-      breedTime = 10; //for testing
+      breedTime = 1; //for testing
     }
     monster.setLevel(1)
         .setFoodAmount(0)

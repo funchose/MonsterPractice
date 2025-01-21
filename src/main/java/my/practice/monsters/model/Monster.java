@@ -100,6 +100,7 @@ public class Monster {
   }
 
   public void feed(int foodAmountToFeed) {
+    int initialLevel = level;
     int levelSum = level;
     int reachedLevel = level;
     int foodPerElement = foodAmountToFeed / elementSet.size();
@@ -110,5 +111,8 @@ public class Monster {
     }
     level = reachedLevel;
     foodAmount = foodAmountToFeed - elementSet.size() * (levelSum - level);
+    if (level > initialLevel) {
+      System.out.printf("%s is now of level %d!%n", this.getType(), this.level);
+    }
   }
 }
